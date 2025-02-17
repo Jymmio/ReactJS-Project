@@ -1,5 +1,6 @@
 const express = require("express");
 const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
 const {UserRepos} = require('../database/repos/user-repos');
 const AuthController = express.Router();
 async function hashPassword(password) {
@@ -34,6 +35,17 @@ AuthController.post('/login', async (req, res) => {
     if(!isPasswordCorrect){
         return res.status(404).json({message: "email/mot de passe incorrect !"});
     }
-    return res.status(200).json({getUser});
+
+    const token = jwt.sign(
+        { id: getUser._id },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" } // Expire en 1 heure
+    );
+    res.cookie("token", token, {
+        httpOnly: true,
+        maxAge: 3600000, 
+    });
+    return res.status(200).json({user: getUser, token: token});
+
 });
 module.exports = {AuthController};
