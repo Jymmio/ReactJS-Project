@@ -45,7 +45,11 @@ AuthController.post('/login', async (req, res) => {
         httpOnly: true,
         maxAge: 3600000, 
     });
-    return res.status(200).json({user: getUser, token: token});
+    return res.status(200).json({message: "connected successfully !"});
 
 });
+AuthController.post('/logout', async (req, res) => {
+    res.clearCookie('token');
+    return res.status(200).json({message: "utilisateur déconnecté."});
+})
 module.exports = {AuthController};
