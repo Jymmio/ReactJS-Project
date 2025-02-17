@@ -19,6 +19,6 @@ ReviewController.post('/', async (req, res) => {
 })
 ReviewController.get('/', async (req, res) => {
     const reviews = await ReviewRepos.findall();
-    return res.json({reviews});
+    return res.status(200).json({reviews});
 })
 module.exports = {ReviewController};

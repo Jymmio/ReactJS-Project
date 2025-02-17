@@ -6,7 +6,7 @@ const database = require('./database/connect');
 
 //routes
 const { ReviewController } = require("./controllers/review-controller");
-
+const {AuthController} = require("./controllers/auth-controller");
 
 dotenv.config();
 const PORT = process.env.PORT;
@@ -16,6 +16,7 @@ app.use(express.json());
 database.connectToDB();
 
 app.use("/api/review", ReviewController);
+app.use("/api/auth", AuthController);
 app.get("/", (req, res) => {
     res.send("Bienvenue sur mon serveur du forum!");
   });
