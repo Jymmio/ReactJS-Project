@@ -1,9 +1,13 @@
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const dotenv = require('dotenv');
+const database = require('./database/connect');
+dotenv.config();
+const PORT = process.env.PORT;
 
 // Middleware pour parser le JSON
 app.use(express.json());
+database.connectToDB();
 app.get("/", (req, res) => {
     res.send("Bienvenue sur mon serveur du forum!");
   });
