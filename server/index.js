@@ -1,13 +1,21 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const dotenv = require('dotenv');
 const database = require('./database/connect');
+
+//routes
+const { ReviewController } = require("./controllers/review-controller");
+
+
 dotenv.config();
 const PORT = process.env.PORT;
-
+app.use(cors());
 // Middleware pour parser le JSON
 app.use(express.json());
 database.connectToDB();
+
+app.use("/api/review", ReviewController);
 app.get("/", (req, res) => {
     res.send("Bienvenue sur mon serveur du forum!");
   });
