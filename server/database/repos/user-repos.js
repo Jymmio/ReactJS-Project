@@ -15,8 +15,9 @@ const UserRepos = {
     findall: async () => {
         return await UserModel.find()
     },
-    update: async ({email , pseudo, password, avatar}) => {
-        return await UserModel.find();
+    findByEmail: async (email) => {
+        console.log("looking for email...");
+        return await UserModel.findOne({email: email});
     }
 
 }

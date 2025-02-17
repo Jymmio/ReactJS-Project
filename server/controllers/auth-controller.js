@@ -21,5 +21,19 @@ AuthController.post('/register', async (req, res) => {
         return res.status(500).json({message: "an error occured!"});
     return res.status(200).json({user: addedUser});
 })
-
+AuthController.post('/login', async (req, res) => {
+    const {email, password} = req.body;
+    if(!email || !password){
+        return res.status(401).json({message: "INVALID_DATA"});
+    }
+    const getUser = await UserRepos.findByEmail(email);
+    if(!getUser){
+        return res.status(404).json({message: "email/mot de passe incorrect !"});
+    }
+    const isPasswordCorrect = await verifyPassword(password, getUser.password);
+    if(!isPasswordCorrect){
+        return res.status(404).json({message: "email/mot de passe incorrect !"});
+    }
+    return res.status(200).json({getUser});
+});
 module.exports = {AuthController};
