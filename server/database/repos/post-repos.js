@@ -1,9 +1,10 @@
-const PostModel = require("../models/posts");
+const { PostModel } = require("../models/posts");
 
 const PostRepos = {
     create: async ({ title, content, image, author }) => {
         try {
-            const newPost = new PostModel({ title, content, image, author });
+            const date = new Date();
+            const newPost = new PostModel({ title, content, image, author, date });
             const savedPost = await newPost.save();
             return savedPost;
         } catch (error) {
@@ -35,7 +36,7 @@ const PostRepos = {
             return await PostModel.findByIdAndDelete(id);
         } catch (error) {
             console.error("Erreur lors de la suppression du post :", error);
-            return null;
+            return null; 
         }
     }
 };

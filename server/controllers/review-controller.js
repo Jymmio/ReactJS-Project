@@ -10,7 +10,7 @@ ReviewController.post('/', async (req, res) => {
     if(!email || !note || !message){
         return res.status(401).json({message: "INVALID_DATA"});
     }
-
+    const date = Date.now;
     const savedReview = await ReviewRepos.create({email, note, message});
     if(!savedReview) {
         res.status(500).json({message: "an error occured"});
