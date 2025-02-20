@@ -6,14 +6,16 @@
 
 const express = require("express");
 const upload = require("../middlewares/upload");
-
+const jwt = require("jsonwebtoken");
 const {PostRepos} = require('../database/repos/post-repos');
 
 const PostController = express.Router();
 
 //create
 PostController.post('/', upload.single("image"), async (req, res) => {
-    const {title, content, author } = req.body;
+    const {title, content } = req.body;
+    const token = req.cookies.token;
+    const author = (jwt.verify(token, process.env.JWT_SECRET)).id;
     const image = req.file;
     if (!title || !content || !author) {
         return res.status(401).json({ message: "INVALID_DATA" });
@@ -54,8 +56,17 @@ PostController.get("/:id", async (req, res) => {
 });
 
 PostController.delete("/:id", async (req, res) => {
+    const token = req.cookies.token;
+    const userId = (jwt.verify(token, process.env.JWT_SECRET)).id;
     const postId = req.params.id;
     try{
+        const post = await PostRepos.find(postId);
+        if (!post) {
+            return res.status(404).json({ message: "post not found !" });
+        }
+        if (post.author.toString() !== userId) {
+            return res.status(403).json({ message: "forbidden ! you didn't create this post, nice try :3" });
+        }
         await PostRepos.delete(postId);
         return res.status(20).json({message: "post deleted successfully !"});
     }
