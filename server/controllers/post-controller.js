@@ -1,9 +1,3 @@
-/*
-3. **Mettre en place l'affichage des posts sur le frontend**
-   - Page d'accueil listant les posts avec pagination
-   - Page détaillée d'un post
-   */
-
 const express = require("express");
 const upload = require("../middlewares/upload");
 const jwt = require("jsonwebtoken");
