@@ -16,8 +16,10 @@ const UserRepos = {
         return await UserModel.find()
     },
     findByEmail: async (email) => {
-        console.log("looking for email...");
         return await UserModel.findOne({email: email});
+    },
+    find: async(id) => {   
+        return await UserModel.findOne({_id: id});
     }
 
 }

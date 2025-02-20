@@ -80,4 +80,27 @@ AuthController.post('/logout', async (req, res) => {
     res.clearCookie('token');
     return res.status(200).json({message: "utilisateur déconnecté."});
 })
+
+//une route pour récuperer l'utilisateur courant ... (à utiliser dans UserProvider)
+AuthController.get("/me", async (req, res) => {
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({ message: "Non authentifié" });
+    }
+    const user = await UserRepos.find((jwt.verify(token, process.env.JWT_SECRET)).id);
+
+    if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+    return res.status(200).json({
+        user: {
+            id: user._id,
+            pseudo: user.pseudo,
+            email: user.email,
+            avatar: user.avatar
+        }
+    });
+});
+
 module.exports = {AuthController};
