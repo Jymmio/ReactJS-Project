@@ -1,8 +1,30 @@
 const express = require("express");
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+    destination: "uploads/", 
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error("Format de fichier non supporté"), false);
+    }
+};
+const upload = multer({ storage, fileFilter, limits: { fileSize: 2 * 1024 * 1024 } });
+
 const {UserRepos} = require('../database/repos/user-repos');
+
 const AuthController = express.Router();
+
 async function hashPassword(password) {
     const salt = await bcrypt.genSalt(12); 
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -11,16 +33,31 @@ async function hashPassword(password) {
 async function verifyPassword(password, hashedPassword) {
     return await bcrypt.compare(password, hashedPassword);
 }
-AuthController.post('/register', async (req, res) => {
-    const {pseudo, email, password, avatar} = req.body;
-    if(!email || !pseudo || !password || !avatar){
-        return res.status(401).json({message: "INVALID_DATA"});
+AuthController.post('/register', upload.single("avatar"), async (req, res) => {
+    const { pseudo, email, password } = req.body;
+    const avatar = req.file;
+    if (!email || !pseudo || !password) {
+        return res.status(401).json({ message: "INVALID_DATA" });
     }
+
     const hashed = await hashPassword(password);
-    const addedUser = await UserRepos.create({email, pseudo, password: hashed, avatar})
-    if(!addedUser)
-        return res.status(500).json({message: "an error occured!"});
-    return res.status(200).json({user: addedUser});
+    let avatarPath = "";
+    if (avatar) {
+        avatarPath = `/uploads/${avatar.filename}`;
+    }
+
+    const addedUser = await UserRepos.create({
+        email,
+        pseudo,
+        password: hashed,
+        avatar: avatarPath 
+    });
+
+    if (!addedUser) {
+        return res.status(500).json({ message: "an error occurred!" });
+    }
+
+    return res.status(200).json({ user: addedUser });
 })
 AuthController.post('/login', async (req, res) => {
     const {email, password} = req.body;
@@ -45,7 +82,16 @@ AuthController.post('/login', async (req, res) => {
         httpOnly: true,
         maxAge: 3600000, 
     });
-    return res.status(200).json({message: "connected successfully !"});
+    return res.status(200).json(
+        {
+            message: "connected successfully !",
+            user: {
+                id: getUser._id,
+                pseudo: getUser.pseudo,
+                email: getUser.email,
+                avatar: getUser.avatar
+            }
+        });
 
 });
 AuthController.post('/logout', async (req, res) => {

@@ -22,6 +22,7 @@ database.connectToDB();
 
 app.use("/api/review", ReviewController);
 app.use("/api/auth", AuthController);
+app.use("/uploads", express.static("uploads"));
 app.get("/", (req, res) => {
     res.send("Bienvenue sur mon serveur du forum!");
   });

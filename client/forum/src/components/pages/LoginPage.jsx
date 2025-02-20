@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { UserContext } from "../context/UserContext";
 export default function LoginPage(){
         const [email, setEmail] = useState('');
         const [password, setPassword] = useState('');
-    
+        const { setUser } = useContext(UserContext);
         function handleEmail(e)
         {
             setEmail(e.target.value);
@@ -22,7 +23,9 @@ export default function LoginPage(){
                 credentials: "include"
             });
             const data = await resp.json();
-            console.log(data);
+            if (res.ok) {
+                setUser(data.user);
+            }
         }
     return (
         <div>

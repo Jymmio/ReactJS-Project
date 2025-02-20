@@ -1,5 +1,6 @@
 import ReviewSection from "../sections/ReviewSection";
 import LoginPage from "./LoginPage";
+import SignupPage from "./SignupPage";
 
 async function disconnect(){
     console.log("disconnecting...");
@@ -17,6 +18,7 @@ export default function HomePage(){
             HomePage
             <button onClick={disconnect}>Se déconnecter</button>
             <LoginPage />
+            <SignupPage />
         </div>
     )
 }
