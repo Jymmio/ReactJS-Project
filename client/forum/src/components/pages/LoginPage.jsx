@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { UserContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
+
 export default function LoginPage(){
         const [email, setEmail] = useState('');
         const [password, setPassword] = useState('');
         const { setUser } = useContext(UserContext);
+        const navigate = useNavigate();
         function handleEmail(e)
         {
             setEmail(e.target.value);
@@ -23,15 +26,19 @@ export default function LoginPage(){
                 credentials: "include"
             });
             const data = await resp.json();
-            if (res.ok) {
+            if (resp.ok) {
                 setUser(data.user);
+                navigate("/forum");
             }
         }
     return (
-        <div>
-            <input type="email" placeholder="jean.dupont@gmail.com" onChange={handleEmail}/>
-            <input type="password" placeholder="********" onChange={handlePassword}/>
-            <button onClick={submit}>Se connecter</button>
+        <div className="flex flex-col gap-y-8">
+            <h1>Login</h1>
+            <div className="flex flex-col items-center gap-y-8">
+                <input type="email" placeholder="jean.dupont@gmail.com" onChange={handleEmail}/>
+                <input type="password" placeholder="********" onChange={handlePassword}/>
+                <button onClick={submit}>Se connecter</button>
+            </div>
         </div>
     )
 }

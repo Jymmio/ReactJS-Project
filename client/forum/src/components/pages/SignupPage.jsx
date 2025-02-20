@@ -38,7 +38,8 @@ export default function SignupPage(){
             console.log(data);
         }
     return (
-        <div>
+        <div className="flex flex-col items-center gap-y-8">
+            <h1>Signup</h1>
             <input type="text" placeholder="pseudo" onChange={handlePseudo}/>
             <input type="email" placeholder="jean.dupont@gmail.com" onChange={handleEmail}/>
             <input type="password" placeholder="********" onChange={handlePassword}/>

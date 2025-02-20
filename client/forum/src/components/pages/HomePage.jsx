@@ -3,7 +3,6 @@ import LoginPage from "./LoginPage";
 import SignupPage from "./SignupPage";
 
 async function disconnect(){
-    console.log("disconnecting...");
     return await fetch('http://localhost:5000/api/auth/logout', {
             method: "POST",
             headers: {
@@ -11,13 +10,13 @@ async function disconnect(){
             },
             credentials: "include"
         });
-}
+} 
 export default function HomePage(){
     return (
-        <div>
-            HomePage
-            <button onClick={disconnect}>Se déconnecter</button>
+        <div className="flex flex-col gap-y-8">
+            {/*<button onClick={disconnect}>Se déconnecter</button>*/}
             <LoginPage />
+            <hr className="border-t border-gray-400 my-4" />
             <SignupPage />
         </div>
     )
