@@ -9,6 +9,7 @@ const database = require('./database/connect');
 const { ReviewController } = require("./controllers/review-controller");
 const {AuthController} = require("./controllers/auth-controller");
 const {PostController} = require("./controllers/post-controller");
+const { CommentController } = require('./controllers/comment-controller');
 
 dotenv.config();
 const PORT = process.env.PORT;
@@ -24,6 +25,7 @@ database.connectToDB();
 app.use("/api/review", ReviewController);
 app.use("/api/auth", AuthController);
 app.use("/api/posts", PostController);
+app.use("/api/comments", CommentController);
 app.use("/uploads", express.static("uploads"));
 app.get("/", (req, res) => {
     res.send("Bienvenue sur mon serveur du forum!");
