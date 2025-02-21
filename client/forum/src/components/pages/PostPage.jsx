@@ -77,6 +77,10 @@ export default function PostPage() {
 
     return (
         <div className="p-6 flex flex-col items-center gap-y-6">
+            <button 
+                onClick={() => navigate("/forum")} 
+                className="px-4 py-2 bg-gray-300 rounded"
+            >Retour</button>
             <h1 className="text-3xl font-bold">{post.title}</h1>
             {post.image && <img src={`http://localhost:5000${post.image}`} alt="Post" className="w-full max-w-md my-4 rounded" />}
             <p className="text-gray-700 text-lg">{post.content}</p>
