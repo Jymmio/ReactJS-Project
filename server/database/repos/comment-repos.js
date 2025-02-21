@@ -13,11 +13,13 @@ const CommentRepos = {
         }
     },
 
-    findAll: async () => {
+    findByPost: async (postId) => {
         try {
-            return await CommentModel.find().populate("author", "content post").sort({ createdAt: -1 });
+            return await CommentModel.find({ post: postId })
+                .populate("author", "pseudo avatar") 
+                .sort({ createdAt: -1 }); 
         } catch (error) {
-            console.error("Erreur lors de la récupération des comments :", error);
+            console.error("Erreur lors de la récupération des commentaires :", error);
             return [];
         }
     }

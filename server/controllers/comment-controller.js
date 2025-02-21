@@ -26,10 +26,18 @@ CommentController.post('/', async (req, res) => {
 
     return res.status(200).json({ comment: addedComment });
 });
-//findall
-CommentController.get('/', async (req, res) => {
-    const comments = await CommentRepos.findAll();
-    return res.status(200).json({comments});
-})
+//finByPost...
+CommentController.get('/posts/:id/comments', async (req, res) => {
+    const postId = req.params.id;
+
+    try {
+        const comments = await CommentRepos.findByPost(postId);
+
+        return res.status(200).json({ comments });
+    } catch (error) {
+        console.error("Erreur lors de la récupération des commentaires :", error);
+        return res.status(500).json({ message: "Erreur serveur" });
+    }
+});
 
 module.exports = { CommentController };

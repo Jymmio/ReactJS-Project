@@ -20,7 +20,18 @@ export default function ForumPage() {
         }
         fetchPosts();
     }, []);
-
+    async function disconnect(){
+        const res = await fetch('http://localhost:5000/api/auth/logout', {
+            method: "POST",
+            headers: {
+                'Content-Type' : 'application/json'
+            },
+            credentials: "include"
+        });
+        if(res){
+            navigate("/");
+        }
+    } 
     return (
         <div className="flex flex-col items-center gap-y-6 p-6">
             <h1 className="text-3xl font-bold">Forum</h1>
@@ -55,6 +66,7 @@ export default function ForumPage() {
                     Suivant
                 </button>
             </div>
+            <button onClick={disconnect}>Se déconnecter</button>
         </div>
     );
 }
