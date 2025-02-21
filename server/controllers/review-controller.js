@@ -10,7 +10,7 @@ ReviewController.post('/', async (req, res) => {
     if(!email || !note || !message){
         return res.status(401).json({message: "INVALID_DATA"});
     }
-
+    const date = Date.now;
     const savedReview = await ReviewRepos.create({email, note, message});
     if(!savedReview) {
         res.status(500).json({message: "an error occured"});
@@ -19,6 +19,6 @@ ReviewController.post('/', async (req, res) => {
 })
 ReviewController.get('/', async (req, res) => {
     const reviews = await ReviewRepos.findall();
-    return res.json({reviews});
+    return res.status(200).json({reviews});
 })
 module.exports = {ReviewController};
