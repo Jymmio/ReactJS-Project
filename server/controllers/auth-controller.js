@@ -28,58 +28,74 @@ AuthController.post('/register', upload.single("avatar"), async (req, res) => {
         avatarPath = `/uploads/${avatar.filename}`;
     }
 
-    const addedUser = await UserRepos.create({
-        email,
-        pseudo,
-        password: hashed,
-        avatar: avatarPath 
-    });
-
-    if (!addedUser) {
-        return res.status(500).json({ message: "an error occurred!" });
+    try{
+        const addedUser = await UserRepos.create({
+            email,
+            pseudo,
+            password: hashed,
+            avatar: avatarPath 
+        });
+    
+        if (!addedUser) {
+            return res.status(500).json({ message: "an error occurred!" });
+        }
+    
+        return res.status(200).json({ user: addedUser });
     }
-
-    return res.status(200).json({ user: addedUser });
-})
+    catch(err){
+        return res.status(500).json({error: err});
+    }
+});
 AuthController.post('/login', async (req, res) => {
     const {email, password} = req.body;
     if(!email || !password){
         return res.status(401).json({message: "INVALID_DATA"});
     }
-    const getUser = await UserRepos.findByEmail(email);
-    if(!getUser){
-        return res.status(404).json({message: "email/mot de passe incorrect !"});
-    }
-    const isPasswordCorrect = await verifyPassword(password, getUser.password);
-    if(!isPasswordCorrect){
-        return res.status(404).json({message: "email/mot de passe incorrect !"});
-    }
+    try{
+        const getUser = await UserRepos.findByEmail(email);
+        if(!getUser){
+            return res.status(404).json({message: "email/mot de passe incorrect !"});
+        }
+        const isPasswordCorrect = await verifyPassword(password, getUser.password);
+        if(!isPasswordCorrect){
+            return res.status(404).json({message: "email/mot de passe incorrect !"});
+        }
 
-    const token = jwt.sign(
-        { id: getUser._id },
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" } // Expire en 1 heure
-    );
-    res.cookie("token", token, {
-        httpOnly: true,
-        maxAge: 3600000, 
-    });
-    return res.status(200).json(
-        {
-            message: "connected successfully !",
-            user: {
-                id: getUser._id,
-                pseudo: getUser.pseudo,
-                email: getUser.email,
-                avatar: getUser.avatar
-            }
+        const token = jwt.sign(
+            { id: getUser._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" } // Expire en 1 heure
+        );
+        res.cookie("token", token, {
+            httpOnly: true,
+            maxAge: 3600000, 
         });
+        return res.status(200).json(
+            {
+                message: "connected successfully !",
+                user: {
+                    id: getUser._id,
+                    pseudo: getUser.pseudo,
+                    email: getUser.email,
+                    avatar: getUser.avatar
+                }
+            });
+    }
+    
+    catch(err){
+        return res.status(500).json({error: err});
+    }
 
 });
 AuthController.post('/logout', async (req, res) => {
-    res.clearCookie('token');
-    return res.status(200).json({message: "utilisateur déconnecté."});
-})
+    try{
+        res.clearCookie('token');
+        return res.status(200).json({message: "utilisateur déconnecté."});
+    }
+    catch(err){
+        return res.status(500).json({error: err});
+    }
+});
 
 //une route pour récuperer l'utilisateur courant ... (à utiliser dans UserProvider)
 AuthController.get("/me", async (req, res) => {
@@ -88,19 +104,25 @@ AuthController.get("/me", async (req, res) => {
     if (!token) {
         return res.status(401).json({ message: "Non authentifié" });
     }
-    const user = await UserRepos.find((jwt.verify(token, process.env.JWT_SECRET)).id);
+    try{
+        const user = await UserRepos.find((jwt.verify(token, process.env.JWT_SECRET)).id);
 
-    if (!user) {
-        return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-    return res.status(200).json({
-        user: {
-            id: user._id,
-            pseudo: user.pseudo,
-            email: user.email,
-            avatar: user.avatar
+        if (!user) {
+            return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
-    });
+        return res.status(200).json({
+            user: {
+                id: user._id,
+                pseudo: user.pseudo,
+                email: user.email,
+                avatar: user.avatar
+            }
+        });
+    }
+    
+    catch(err){
+        return res.status(500).json({error: err});
+    }
 });
 
 module.exports = {AuthController};

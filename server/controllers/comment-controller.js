@@ -19,17 +19,24 @@ CommentController.post('/', async (req, res) => {
     if(!postExist){
         return res.status(403).json({message: "le post que vous commentez n'existe pas."});
     }
-    const addedComment = await CommentRepos.create({
-        content,
-        author,
-        post
-    });
+    try{
+        const addedComment = await CommentRepos.create({
+            content,
+            author,
+            post
+        });
+        
+        if (!addedComment) {
+            return res.status(500).json({ message: "an error occurred!" });
+        }
+
+        return res.status(200).json({ comment: addedComment });
+    }
     
-    if (!addedComment) {
-        return res.status(500).json({ message: "an error occurred!" });
+    catch(err){
+        return res.status(500).json({error: err});
     }
 
-    return res.status(200).json({ comment: addedComment });
 });
 
 module.exports = { CommentController };
