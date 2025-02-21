@@ -1,14 +1,19 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CreatePost from "./CreatePost";
+import { UserContext } from "../context/UserContext";
 
 export default function ForumPage() {
     const [posts, setPosts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const navigate = useNavigate();
+    const [favorites, setFavorites] = useState([]);
     const postsPerPage = 2; 
     const totalPages = Math.ceil(posts.length / postsPerPage);
     const paginatedPosts = posts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+    
+    const { user } = useContext(UserContext);
+    const navigate = useNavigate();
+
     useEffect(() => {
         async function fetchPosts() {
             const res = await fetch(`http://localhost:5000/api/posts`);
@@ -17,9 +22,26 @@ export default function ForumPage() {
             if (res.ok) {
                 setPosts(data.posts);
             }
-        }
+        };
         fetchPosts();
     }, []);
+    useEffect(() => {
+        async function fetchFavorites() {
+            if (!user) {
+                console.warn("⏳ Attente de l'utilisateur...");
+                return;
+            }
+            const res = await fetch(`http://localhost:5000/api/users/${user.id}/favorites`);
+            let data = await res.json();
+            data = data.favorites;
+            console.log(data);
+            if(res.ok){
+                setFavorites(data.map(favorite => favorite._id));
+                console.log(favorites);
+            }
+        };
+        fetchFavorites();
+    }, [user])
     async function disconnect(){
         const res = await fetch('http://localhost:5000/api/auth/logout', {
             method: "POST",
@@ -32,6 +54,19 @@ export default function ForumPage() {
             navigate("/");
         }
     } 
+    async function toggleFavorite(postId) {
+        const isFavorite = favorites.includes(postId);
+        const method = isFavorite ? "DELETE" : "POST";
+        const res = await fetch(`http://localhost:5000/api/users/${postId}/favorites`, {
+            method: method,
+            credentials: "include"
+        });
+        if(res.ok){
+            setFavorites(prev => {
+                isFavorite ? prev.filter(id => id !== postId) : [...prev, postId]
+            });
+        }       
+    }
     return (
         <div className="flex flex-col items-center gap-y-6 p-6">
             <h1 className="text-3xl font-bold">Forum</h1>
@@ -40,9 +75,22 @@ export default function ForumPage() {
                 {paginatedPosts.map(post => (
                     <div 
                         key={post._id} 
-                        className="p-4 border rounded-lg shadow cursor-pointer hover:bg-gray-100"
+                        className="relative p-4 border rounded-lg shadow cursor-pointer hover:bg-gray-100"
                         onClick={() => navigate(`/post/${post._id}`)}
                     >
+                        <div 
+                            className="absolute top-2 right-2 text-2xl cursor-pointer"
+                            onClick={(e) => {
+                                e.stopPropagation(); 
+                                toggleFavorite(post._id);
+                            }}
+                        >
+                            {favorites.includes(post._id) ? (
+                                <span className="text-red-500">❤️</span> 
+                            ) : (
+                                <span className="text-gray-400">🤍</span> 
+                            )}
+                        </div>
                         <h2 className="text-xl font-semibold">{post.title}</h2>
                         <p className="text-gray-600">{post.content.substring(0, 100)}...</p>
                         <p className="text-sm text-gray-400">Posté par {post.author.pseudo}</p>

@@ -6,11 +6,11 @@ const FavoriteRepos = {
             let favorite = await FavoriteModel.findOne({ user: userId });
 
             if (!favorite) {
-                favorite = new FavoriteModel({ user: userId, posts: [] });
+                favorite = new FavoriteModel({ user: userId, post: [] });
             }
 
-            if (!favorite.posts.includes(postId)) {
-                favorite.posts.push(postId);
+            if (!favorite.post.includes(postId)) {
+                favorite.post.push(postId);
                 await favorite.save();
             }
 
@@ -26,7 +26,7 @@ const FavoriteRepos = {
             const favorite = await FavoriteModel.findOne({ user: userId });
 
             if (favorite) {
-                favorite.posts = favorite.posts.filter(id => id.toString() !== postId.toString());
+                favorite.post = favorite.post.filter(id => id.toString() !== postId.toString());
                 await favorite.save();
             }
 
@@ -39,9 +39,9 @@ const FavoriteRepos = {
 
     findByUser: async (userId) => {
         try {
-            const favorite = await FavoriteModel.findOne({ user: userId }).populate("posts");
+            const favorite = await FavoriteModel.findOne({ user: userId }).populate("post");
 
-            return favorite ? favorite.posts : [];
+            return favorite ? favorite.post : [];
         } catch (error) {
             console.error("Erreur lors de la récupération des favoris :", error);
             return [];

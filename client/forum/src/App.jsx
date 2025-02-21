@@ -6,7 +6,6 @@ import { UserProvider } from "./components/context/UserContext";
 import './App.css'
 
 function App() {
-  
   return (
     <UserProvider>
       <BrowserRouter>

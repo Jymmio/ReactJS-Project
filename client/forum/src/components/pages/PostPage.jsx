@@ -25,7 +25,7 @@ export default function PostPage() {
         fetchPost();
 
         async function fetchComments() {
-            const res = await fetch(`http://localhost:5000/api/comments/posts/${id}/comments`);
+            const res = await fetch(`http://localhost:5000/api/posts/${id}/comments`);
             const data = await res.json();
             console.log(data.comments);
             if (res.ok) {

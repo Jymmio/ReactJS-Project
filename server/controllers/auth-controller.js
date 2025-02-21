@@ -84,7 +84,7 @@ AuthController.post('/logout', async (req, res) => {
 //une route pour récuperer l'utilisateur courant ... (à utiliser dans UserProvider)
 AuthController.get("/me", async (req, res) => {
     const token = req.cookies.token;
-
+    console.log(token);
     if (!token) {
         return res.status(401).json({ message: "Non authentifié" });
     }

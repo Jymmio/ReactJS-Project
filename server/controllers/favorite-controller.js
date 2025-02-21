@@ -11,7 +11,8 @@ FavoriteController.post("/:id/favorites", async (req, res) => {
     try {
         const userId = jwt.verify(token, process.env.JWT_SECRET).id;
         const postId = req.params.id;
-
+        console.log("userId extrait du token :", userId);
+        console.log("postId reçu :", postId);
         const favorite = await FavoriteRepos.create(userId, postId);
         return res.status(200).json({ message: "Ajouté aux favoris", favorite });
     } catch (error) {

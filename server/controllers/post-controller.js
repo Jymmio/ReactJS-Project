@@ -2,7 +2,7 @@ const express = require("express");
 const upload = require("../middlewares/upload");
 const jwt = require("jsonwebtoken");
 const {PostRepos} = require('../database/repos/post-repos');
-
+const {CommentRepos} = require('../database/repos/comment-repos');
 const PostController = express.Router();
 
 //create
@@ -68,5 +68,17 @@ PostController.delete("/:id", async (req, res) => {
         res.status(500).json({message: "une erreur est survenue.", error: err});
     }
 });
+//find post comments
+PostController.get('/:id/comments', async (req, res) => {
+    const postId = req.params.id;
 
+    try {
+        const comments = await CommentRepos.findByPost(postId);
+
+        return res.status(200).json({ comments });
+    } catch (error) {
+        console.error("Erreur lors de la récupération des commentaires :", error);
+        return res.status(500).json({ message: "Erreur serveur" });
+    }
+});
 module.exports = { PostController };
