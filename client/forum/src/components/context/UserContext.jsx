@@ -7,13 +7,18 @@ export function UserProvider({ children }) {
     //ça devrait permettre de récup l'utilisateur au chargement de l'appli...
     useEffect(() => {
         async function fetchUser() {
-            const res = await fetch("http://localhost:5000/api/auth/me", {
-                credentials: "include"
-            });
+            try {
+                const res = await fetch("http://localhost:5000/api/auth/me", {
+                    credentials: "include"
+                });
 
-            const data = await res.json();
-            if (res.ok) {
-                setUser(data.user); 
+                const data = await res.json();
+
+                if (res.ok) {
+                    setUser(data.user);
+                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération de l'utilisateur :", error);
             }
         }
         fetchUser();
