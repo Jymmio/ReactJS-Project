@@ -18,35 +18,52 @@ PostController.post('/', upload.single("image"), async (req, res) => {
     if (image) {
         imagePath = `/uploads/${image.filename}`;
     }
-    const addedPost = await PostRepos.create({
-        title,
-        content,
-        image: imagePath,
-        author
-    });
+    try{
+        const addedPost = await PostRepos.create({
+            title,
+            content,
+            image: imagePath,
+            author
+        });
+        
+        if (!addedPost) {
+            return res.status(500).json({ message: "an error occurred!" });
+        }
     
-    if (!addedPost) {
-        return res.status(500).json({ message: "an error occurred!" });
+        return res.status(200).json({ post: addedPost });
+    }
+    
+    catch(err){
+        return res.status(500).json({error: err});
     }
 
-    return res.status(200).json({ post: addedPost });
 });
 //findall
 PostController.get('/', async (req, res) => {
-    const posts = await PostRepos.findAll();
-    return res.status(200).json({posts});
+    try{
+        const posts = await PostRepos.findAll();
+        return res.status(200).json({posts});
+    }
+    catch(err){
+        return res.status(500).json({error: err});
+    }
 })
 
 //findById
 PostController.get("/:id", async (req, res) => {
-    const postId = req.params.id;
-    const post = await PostRepos.find(postId);
+    try {
+        const postId = req.params.id;
+        const post = await PostRepos.find(postId);
 
-    if (!post) {
-        return res.status(404).json({ message: "Post non trouvé !" });
+        if (!post) {
+            return res.status(404).json({ message: "Post non trouvé !" });
+        }
+
+        return res.status(200).json(post);
     }
-
-    return res.status(200).json(post);
+    catch(err){
+        return res.status(500).json({error: err});
+    }
 });
 
 PostController.delete("/:id", async (req, res) => {
@@ -77,7 +94,6 @@ PostController.get('/:id/comments', async (req, res) => {
 
         return res.status(200).json({ comments });
     } catch (error) {
-        console.error("Erreur lors de la récupération des commentaires :", error);
         return res.status(500).json({ message: "Erreur serveur" });
     }
 });
