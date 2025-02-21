@@ -28,20 +28,19 @@ export default function ForumPage() {
     useEffect(() => {
         async function fetchFavorites() {
             if (!user) {
-                console.warn("⏳ Attente de l'utilisateur...");
                 return;
             }
             const res = await fetch(`http://localhost:5000/api/users/${user.id}/favorites`);
             let data = await res.json();
             data = data.favorites;
-            console.log(data);
             if(res.ok){
                 setFavorites(data.map(favorite => favorite._id));
-                console.log(favorites);
             }
         };
         fetchFavorites();
-    }, [user])
+    }, [user]);
+    useEffect(() => {
+    }, [favorites]);
     async function disconnect(){
         const res = await fetch('http://localhost:5000/api/auth/logout', {
             method: "POST",
@@ -63,37 +62,45 @@ export default function ForumPage() {
         });
         if(res.ok){
             setFavorites(prev => {
-                isFavorite ? prev.filter(id => id !== postId) : [...prev, postId]
+                const newFavorites = isFavorite ? prev.filter(id => id !== postId) : [...prev, postId];
+                return newFavorites || [];
             });
         }       
     }
     return (
         <div className="flex flex-col items-center gap-y-6 p-6">
             <h1 className="text-3xl font-bold">Forum</h1>
+            <button onClick={() => {navigate(`/favoris/${user.id}`)}}>Mes favoris</button>
             <CreatePost />
             <div className="w-full max-w-2xl flex flex-col gap-y-4">
                 {paginatedPosts.map(post => (
-                    <div 
-                        key={post._id} 
-                        className="relative p-4 border rounded-lg shadow cursor-pointer hover:bg-gray-100"
-                        onClick={() => navigate(`/post/${post._id}`)}
-                    >
+                    <div className="flex flex-row"
+                            key={post._id} >
                         <div 
-                            className="absolute top-2 right-2 text-2xl cursor-pointer"
+                            className="relative p-4 border rounded-lg shadow cursor-pointer hover:bg-gray-100"
                             onClick={(e) => {
-                                e.stopPropagation(); 
+                                navigate(`/post/${post._id}`);
+                            }}
+                            
+                        >
+                            
+                            <h2 className="text-xl font-semibold">{post.title}</h2>
+                            <p className="text-gray-600">{post.content.substring(0, 100)}...</p>
+                            <p className="text-sm text-gray-400">Posté par {post.author.pseudo}</p>
+                        </div>
+                        <div 
+                            className="text-2xl cursor-pointer select-none"
+                            onClick={(e) => {
+                                e.preventDefault();
                                 toggleFavorite(post._id);
                             }}
                         >
-                            {favorites.includes(post._id) ? (
+                            {Array.isArray(favorites) && favorites.includes(post._id) ? (
                                 <span className="text-red-500">❤️</span> 
                             ) : (
                                 <span className="text-gray-400">🤍</span> 
                             )}
                         </div>
-                        <h2 className="text-xl font-semibold">{post.title}</h2>
-                        <p className="text-gray-600">{post.content.substring(0, 100)}...</p>
-                        <p className="text-sm text-gray-400">Posté par {post.author.pseudo}</p>
                     </div>
                 ))}
             </div>
